@@ -1,0 +1,233 @@
+{% extends 'movie/base.html' %}
+{% block content %}
+
+<link href="{% static 'css/star-rating.css' %}" rel="stylesheet" type="text/css"/>
+<script src="{% static 'js/star-rating.js' %}"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+<style>
+    body {
+        background: linear-gradient(to right, #dbeafe, #bae6fd);
+        font-family: 'Segoe UI', sans-serif;
+        color: #1f2937;
+    }
+
+    .container {
+        max-width: 1000px;
+        margin: 40px auto;
+        padding: 0 20px;
+    }
+
+    .movie-box {
+        display: flex;
+        flex-wrap: wrap;
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        padding: 30px;
+        margin-bottom: 40px;
+    }
+
+    .poster {
+        width: 250px;
+        margin-right: 30px;
+        flex-shrink: 0;
+    }
+
+    .poster img {
+        width: 100%;
+        border-radius: 12px;
+        object-fit: cover;
+    }
+
+    .info {
+        flex: 1;
+    }
+
+    .info h3 {
+        font-size: 28px;
+        font-weight: bold;
+        color: #2563eb;
+        margin-bottom: 10px;
+    }
+
+    .info p {
+        font-size: 15px;
+        color: #374151;
+        margin-bottom: 8px;
+    }
+
+    .info strong {
+        color: #1e3a8a;
+    }
+
+    .stars {
+        font-size: 20px;
+        color: #facc15;
+    }
+
+    .score {
+        font-weight: bold;
+        color: #e09015;
+        font-size: 16px;
+        margin-left: 10px;
+    }
+
+    .genre-tag {
+        display: inline-block;
+        background: #2563eb;
+        color: #fff;
+        padding: 3px 10px;
+        border-radius: 14px;
+        font-size: 13px;
+        margin-right: 6px;
+        margin-top: 4px;
+        font-weight: 500;
+        text-decoration: none;
+    }
+
+    .genre-tag:hover {
+        background: #1e40af;
+    }
+
+    .alert {
+        background: #93c5fd;
+        color: #1e3a8a;
+        padding: 12px 20px;
+        border-radius: 10px;
+        text-align: center;
+        font-weight: 500;
+        margin-bottom: 20px;
+    }
+
+    .movie-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 30px;
+    }
+
+    .movie-card {
+        width: 180px;
+        background: #ffffff;
+        border-radius: 14px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        overflow: hidden;
+        transition: transform 0.3s ease;
+        text-align: center;
+        color: #1f2937;
+        text-decoration: none;
+    }
+
+    .movie-card:hover {
+        transform: translateY(-4px);
+    }
+
+    .movie-card img {
+        width: 100%;
+        height: 250px;
+        object-fit: cover;
+    }
+
+    .movie-card p {
+        font-size: 14px;
+        font-weight: bold;
+        margin: 10px;
+    }
+
+    .movie-card span {
+        color: #e09015;
+        font-weight: normal;
+    }
+
+    .card {
+        background: #ffffff;
+        padding: 30px;
+        border-radius: 16px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        margin-top: 40px;
+    }
+
+    .btn-primary {
+        background: #2563eb;
+        color: #fff;
+        border: none;
+    }
+
+    .btn-primary:hover {
+        background: #1d4ed8;
+    }
+</style>
+
+<!-- 电影信息 -->
+<div class="container">
+    <div class="movie-box">
+        <div class="poster">
+            <img src="/static/movie/poster/{{ movie.imdb_id }}.jpg" alt="{{ movie.name }}">
+        </div>
+        <div class="info">
+            <h3>{{ movie.name }}</h3>
+            <p class="stars">
+                {% for star in movie.get_score_int_range %}★{% endfor %}
+                <span class="score">{{ movie.get_score }}</span>
+            </p>
+            <p><strong>📖 Intro:</strong> {{ movie.intro }}</p>
+            <p><strong>🎬 Director:</strong> {{ movie.director }}</p>
+            <p><strong>✍️ Writers:</strong> {{ movie.writers }}</p>
+            <p><strong>🎭 Actors:</strong> {{ movie.actors }}</p>
+            <p><strong>🎞️ Genres:</strong>
+                {% for genre in movie.get_genre %}
+                    <a class="genre-tag" href="{% url 'movie:tag' %}?genre={{ genre }}">{{ genre }}</a>
+                {% endfor %}
+            </p>
+            <p><strong>⏱️ Duration:</strong> {{ movie.time }}</p>
+            <p><strong>📅 Release:</strong> {{ movie.release_time }}</p>
+        </div>
+    </div>
+
+    <!-- 相似推荐 -->
+    <div class="alert">🎬 You might also like</div>
+    <div class="movie-grid">
+        {% for movie in similarity_movies %}
+            <a href="{% url 'movie:detail' movie.pk %}" class="movie-card">
+                <img src="/static/movie/poster/{{ movie.imdb_id }}.jpg" alt="{{ movie.name }}">
+                <p>{{ movie.name }}<br><span>{{ movie.get_score }}</span></p>
+            </a>
+        {% endfor %}
+    </div>
+
+    <!-- 留下评分 -->
+    {% if login %}
+        <div class="card">
+            <h4 style="font-weight: bold; color: #1e3a8a;">✨ Leave Your Rating</h4>
+            <form class="star" method="post">
+                {% csrf_token %}
+                <div class="form-group text-center" style="margin-top: 20px;">
+                    <label for="input-2ba">Your Rating:</label><br>
+                    <input id="input-2ba" name="score" value="{{ score }}" type="number" class="rating"
+                           min="0" max="5" step="0.5"
+                           data-stars="5" data-symbol="★"
+                           data-default-caption="{rating} Stars" data-star-captions="{}">
+                </div>
+
+                <div class="form-group" style="margin-top: 25px;">
+                    <label for="comment">Your Comment:</label>
+                    <textarea class="form-control" name="comment" id="comment" rows="4"
+                              placeholder="Write your thoughts here...">{{ comment }}</textarea>
+                </div>
+
+                <div class="form-group text-right" style="margin-top: 20px;">
+                    <button type="submit" class="btn btn-primary" style="border-radius: 20px; min-width: 100px;">Submit</button>
+                    <button type="reset" class="btn btn-secondary" style="border-radius: 20px; min-width: 100px;">Reset</button>
+                </div>
+            </form>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+    jQuery(document).ready(function () {
+        $(".rating").rating();
+    });
+</script>
+
+{% endblock %}

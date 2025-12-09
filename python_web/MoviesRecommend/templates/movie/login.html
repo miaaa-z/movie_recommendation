@@ -1,0 +1,79 @@
+{% extends 'movie/base.html' %}
+{% block content %}
+    <style>
+        /* 设置背景图 */
+        body {
+            background-image: url('/static/pexels-tima-miroshnichenko-5662857.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        .form-signin {
+            max-width: 330px;
+            padding: 20px 25px;
+            margin: 60px auto;
+            background-color: rgba(255, 255, 255, 0.85); /* 半透明白色背景 */
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .form-signin .form-signin-heading {
+            font-size: 26px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .form-signin .checkbox {
+            font-weight: normal;
+            margin-bottom: 15px;
+        }
+
+        .form-signin .form-control {
+            position: relative;
+            height: auto;
+            box-sizing: border-box;
+            padding: 10px;
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+
+        .form-signin .form-control:focus {
+            z-index: 2;
+        }
+
+        .btn-block {
+            margin-top: 10px;
+        }
+    </style>
+
+    <div class="container">
+        <form class="form-signin" action="" method="post">
+            <h2 class="form-signin-heading">User login</h2>
+            {% csrf_token %}
+            <label for="inputName" class="sr-only">User name</label>
+            <input type="text" id="inputName" class="form-control" placeholder="User name" name="name" required autofocus>
+
+            <label for="inputPassword" class="sr-only">Password</label>
+            <input type="password" id="inputPassword" class="form-control" placeholder="Password" name="password" required>
+
+            <div class="checkbox">
+                <label>
+                    <input type="checkbox" value="1" name="remember">
+                    Remember login status
+                </label>
+            </div>
+            <button class="btn btn-lg btn-primary btn-block" type="submit">Log in</button>
+        </form>
+    </div>
+
+    <!-- 消息提示 -->
+    <div class="container">
+        {% for message in messages %}
+            {% if message.tags == 'info' %}
+                <div class="alert alert-info" role="alert">{{ message }}</div>
+            {% endif %}
+        {% endfor %}
+    </div>
+{% endblock %}

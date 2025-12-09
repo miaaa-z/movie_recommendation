@@ -1,0 +1,144 @@
+
+{% extends "movie/base.html" %}
+{% block content %}
+    <style>
+        /* 项目简介区域 */
+        .jumbotron {
+            background-image: url('/static/pexels -cottonbro-3945321.jpg');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            padding: 40px;
+            border-radius: 8px;
+        }
+
+        .jumbotron h1 {
+            font-size: 40px;
+            font-weight: bold;
+        }
+
+        .jumbotron p {
+            font-size: 18px;
+        }
+
+        .container {
+            padding-top: 30px;
+        }
+
+        /* 卡片展示区域 */
+        .movie-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            justify-content: flex-start;
+            margin-top: 30px;
+        }
+
+        .movie-card {
+            width: 200px;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .movie-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+        }
+
+        .poster_div {
+            height: 300px;
+            overflow: hidden;
+        }
+
+        .poster_div img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+        }
+
+        .movie-info {
+            padding: 10px 12px;
+        }
+
+        .movie-info p {
+            margin: 8px 0 5px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .movie-info strong {
+            color: #e09015;
+        }
+    </style>
+
+    <div class="container">
+        <!-- 项目介绍 -->
+        <div class="jumbotron">
+            <h1>Project profile</h1>
+            <p>This project aims to provide an efficient movie recommendation platform for university students in the UK, with an estimated user base of 50-100 people.</p>
+            <p>The website operates in two modes: registered and unregistered users.</p>
+            <p>It offers functionalities such as movie search, category browsing, trending movie display, and detailed movie information.</p>
+            <p>Registered users can receive personalized recommendations based on their ratings, while administrators can manage movie and user information.</p>
+        </div>
+
+        <!-- 电影卡片展示 -->
+        <div class="movie-grid">
+            {% for movie in movies %}
+                <a href="{% url 'movie:detail' movie.pk %}" style="text-decoration: none;">
+                    <div class="movie-card">
+                        <div class="poster_div">
+                            <img src="/static/movie/poster/{{ movie.imdb_id }}.jpg" alt="{{ movie.name }}">
+                        </div>
+                        <div class="movie-info">
+                            <p>{{ movie.name }}</p>
+                            <strong>{{ movie.get_score }}</strong>
+                        </div>
+                    </div>
+                </a>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- 分页器（保持不变） -->
+    <nav style="text-align: center;">
+        <ul class="pagination">
+            {% if page_obj.has_previous %}
+                <li><a href="{% url 'movie:index' %}?p={{ page_obj.previous_page_number }}">previous</a></li>
+            {% else %}
+                <li class="disabled"><a href="javascript:void(0);">previous</a></li>
+            {% endif %}
+
+            {% if left_has_more %}
+                <li><a href="{% url 'movie:index' %}?p=1">1</a></li>
+                <li><a href="javascript:void(0)">...</a></li>
+            {% endif %}
+
+            {% for left_page in left_pages %}
+                <li><a href="{% url 'movie:index' %}?p={{ left_page }}">{{ left_page }}</a></li>
+            {% endfor %}
+
+            <li class="active"><a href="javascript:void(0);">{{ current_page }}</a></li>
+
+            {% for right_page in right_pages %}
+                <li><a href="{% url 'movie:index' %}?p={{ right_page }}">{{ right_page }}</a></li>
+            {% endfor %}
+
+            {% if right_has_more %}
+                <li><a href="javascript:void(0)">...</a></li>
+                <li><a href="{% url 'movie:index' %}?p={{ paginator.num_pages }}">{{ paginator.num_pages }}</a></li>
+            {% endif %}
+
+            {% if page_obj.has_next %}
+                <li><a href="{% url 'movie:index' %}?p={{ page_obj.next_page_number }}">next</a></li>
+            {% else %}
+                <li class="disabled"><a href="javascript:void(0);">previous</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+{% endblock %}

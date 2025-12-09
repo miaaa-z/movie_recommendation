@@ -1,0 +1,217 @@
+{% extends 'movie/base.html' %}
+{% block content %}
+<script src="{% static 'layer/layer.js' %}"></script>
+
+<style>
+    body {
+        background: linear-gradient(to right, #dbeafe, #bae6fd);  /* ✅ 浅蓝背景 */
+        font-family: 'Segoe UI', sans-serif;
+        color: #1f2937;  /* ✅ 深灰色字体 */
+    }
+
+    .container {
+        padding: 40px 20px;
+        max-width: 1000px;
+        margin: auto;
+    }
+
+    .section-title {
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 25px;
+        text-align: center;
+        color: #2563eb;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+    }
+
+    .rating-card {
+        display: flex;
+        background: rgba(255,255,255,0.7);  /* ✅ 更亮 */
+        backdrop-filter: blur(8px);
+        border-radius: 16px;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+        padding: 20px;
+        margin-bottom: 30px;
+        transition: transform 0.4s ease, box-shadow 0.4s ease;
+    }
+
+    .rating-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 28px rgba(0,0,0,0.15);
+    }
+
+    .poster {
+        width: 160px;
+        margin-right: 25px;
+        flex-shrink: 0;
+    }
+
+    .poster img {
+        width: 100%;
+        border-radius: 12px;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+
+    .poster img:hover {
+        transform: scale(1.05);
+    }
+
+    .info {
+        flex: 1;
+    }
+
+    .info h4 {
+        margin: 0 0 10px;
+        font-size: 22px;
+        font-weight: bold;
+        color: #1e3a8a;
+    }
+
+    .info p {
+        margin: 6px 0;
+        font-size: 15px;
+        color: #374151;
+    }
+
+    .info strong {
+        color: #2563eb;
+    }
+
+    .stars {
+        color: #f59e0b;
+        font-size: 18px;
+        display: inline-block;
+        margin-right: 10px;
+    }
+
+    .score {
+        font-weight: bold;
+        font-size: 16px;
+        color: #2563eb;
+    }
+
+    .genre-tag {
+        display: inline-block;
+        background: #60a5fa;
+        color: #fff;
+        padding: 4px 10px;
+        border-radius: 14px;
+        font-size: 13px;
+        margin-right: 5px;
+        margin-top: 4px;
+        font-weight: 600;
+        transition: 0.3s;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    .genre-tag:hover {
+        background: #2563eb;
+        color: #fff;
+    }
+
+    .my-comment {
+        background: rgba(37, 99, 235, 0.05);
+        border-left: 4px solid #2563eb;
+        padding: 12px 15px;
+        margin-top: 15px;
+        border-radius: 10px;
+        color: #1f2937;
+    }
+
+    .delete-btn {
+        margin-top: 15px;
+        background-color: #ef4444;
+        border: none;
+        color: #fff;
+        border-radius: 20px;
+        padding: 8px 16px;
+        transition: 0.3s;
+        font-weight: 500;
+    }
+
+    .delete-btn:hover {
+        background-color: #dc2626;
+        transform: scale(1.05);
+    }
+
+    .alert {
+        background-color: #60a5fa;
+        color: white;
+        padding: 12px;
+        border-radius: 6px;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+
+    .layui-layer-content span {
+        color: #333 !important;
+    }
+</style>
+
+<div class="container">
+    {% for message in messages %}
+        {% if message.tags == 'info' %}
+            <div class="alert" role="alert">{{ message }}</div>
+        {% endif %}
+    {% endfor %}
+    <div class="section-title">📒 Your Scoring History</div>
+</div>
+
+<div class="container">
+    {% for rating in ratings %}
+        <div class="rating-card">
+            <div class="poster">
+                <a href="{% url 'movie:detail' rating.movie.pk %}">
+                    <img src="/static/movie/poster/{{ rating.movie.imdb_id }}.jpg" alt="{{ rating.movie.name }}">
+                </a>
+            </div>
+            <div class="info">
+                <h4>{{ rating.movie.name }}</h4>
+                <p class="stars">
+                    {% for foo in rating.movie.get_score_int_range %}★{% endfor %}
+                    <span class="score">{{ rating.movie.get_score }}</span>
+                </p>
+                <p>🎭 <strong>Actors:</strong> {{ rating.movie.actors }}</p>
+                <p>📚 <strong>Genres:</strong>
+                    {% for genre in rating.movie.get_genre %}
+                        <a class="genre-tag" href="{% url 'movie:tag' %}?genre={{ genre }}">{{ genre }}</a>
+                    {% endfor %}
+                </p>
+                <p>⏱ <strong>Duration:</strong> {{ rating.movie.time }}</p>
+                <div class="my-comment">
+                    <p><strong>⭐ My Score:</strong> {{ rating.score }}</p>
+                    <p><strong>💬 My Comment:</strong> {{ rating.comment }}</p>
+                </div>
+                <button type="button" class="btn delete-btn"
+                        onclick="confirm_delete('{% url 'movie:delete_record' rating.movie.id %}')">
+                    🗑 Delete Comment
+                </button>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+
+<script>
+    function confirm_delete(url) {
+        layer.open({
+            title: "<span style='color:#d9534f;'>❗ Confirm Delete</span>",
+            content: "<span style='font-size: 15px; color:#333;'>Are you sure you want to delete this comment? This action cannot be undone.</span>",
+            icon: 5,
+            btn: ["Confirm", "Cancel"],
+            btnAlign: 'c',
+            skin: 'layui-layer-danger',
+            yes: function () {
+                location.href = url;
+            }
+        });
+    }
+
+    window.onkeyup = function (ev) {
+        const key = ev.keyCode || ev.which;
+        if (key === 27) {
+            layer.closeAll();
+        }
+    }
+</script>
+{% endblock %}

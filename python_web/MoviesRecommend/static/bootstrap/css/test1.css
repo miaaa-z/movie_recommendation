@@ -1,0 +1,66 @@
+/* 设置背景图片 */
+body {
+    background: url("/static/pexels-cottonbro-4881679.jpg") no-repeat center center fixed;
+    background-size: cover;
+    color: #fff;
+    text-align: center;
+    font-family: "Arial", sans-serif;
+}
+
+/* 标题的半透明背景 */
+.title-overlay {
+    background-color: rgba(173, 216, 230, 0.6); /* 淡蓝色半透明 */
+    padding: 20px;
+    border-radius: 10px;
+    display: inline-block;
+    margin-top: 10%;
+}
+
+h1 {
+    font-size: 48px;
+    font-weight: bold;
+    color: #333;
+}
+
+p {
+    font-size: 20px;
+    color: #222;
+}
+
+/* 访问系统按钮 */
+.access-btn {
+    display: block;
+    margin: 30px auto;
+    padding: 15px 30px;
+    font-size: 20px;
+    background-color: rgba(255, 255, 255, 0.8); /* 半透明 */
+    border: none;
+    color: #333;
+    border-radius: 10px;
+    text-decoration: none;
+    width: 250px;
+    text-align: center;
+    font-weight: bold;
+    transition: all 0.3s ease-in-out;
+}
+
+.access-btn:hover {
+    background-color: rgba(255, 255, 255, 1);
+}
+
+/* 管理员入口按钮 */
+.admin-btn {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 10px 20px;
+    color: white;
+    border-radius: 8px;
+    font-size: 14px;
+    text-decoration: none;
+}
+
+.admin-btn:hover {
+    background-color: rgba(0, 0, 0, 0.8);
+}

@@ -1,0 +1,137 @@
+{% extends 'movie/base.html' %}
+{% block content %}
+
+<style>
+    body {
+        background: linear-gradient(to right, #dbeafe, #bae6fd);  /* ✅ 浅蓝背景 */
+        font-family: 'Segoe UI', sans-serif;
+        color: #1f2937;
+    }
+
+    .movie-card {
+        display: flex;
+        align-items: flex-start;
+        padding: 20px;
+        border-radius: 12px;
+        background: #ffffff;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        margin-bottom: 20px;
+        transition: all 0.3s ease;
+    }
+
+    .movie-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+    }
+
+    .poster {
+        width: 150px;
+        margin-right: 20px;
+        flex-shrink: 0;
+    }
+
+    .poster img {
+        width: 100%;
+        border-radius: 10px;
+        object-fit: cover;
+    }
+
+    .info {
+        flex: 1;
+        color: #1f2937;
+    }
+
+    .info h4 {
+        margin: 0;
+        font-size: 20px;
+        font-weight: bold;
+        color: #1e3a8a;
+    }
+
+    .info p {
+        margin: 6px 0;
+        font-size: 14px;
+        color: #374151;
+    }
+
+    .info a {
+        color: #2563eb;
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .info a:hover {
+        text-decoration: underline;
+    }
+
+    .score {
+        color: #e09015;
+        font-weight: bold;
+        font-size: 16px;
+    }
+
+    .section-title {
+        margin: 30px 0 15px;
+        font-size: 22px;
+        font-weight: bold;
+        color: #1e3a8a;
+        text-align: center;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.05);
+    }
+
+    hr {
+        border: none;
+        border-top: 1px solid #eee;
+        margin: 20px 0;
+    }
+
+    .alert-success {
+        background-color: #93c5fd;
+        border: none;
+        color: #1e3a8a;
+        padding: 12px 20px;
+        border-radius: 8px;
+        margin-bottom: 25px;
+        text-align: center;
+        font-weight: 500;
+    }
+</style>
+
+<div class="container">
+    {% for message in messages %}
+        {% if message.tags == 'info' %}
+            <div class="alert alert-success" role="alert">{{ message }}</div>
+        {% endif %}
+    {% endfor %}
+
+    <div class="section-title">🎯 Movies you might like</div>
+
+    {% for movie in movies %}
+        <div class="movie-card">
+            <div class="poster">
+                <a href="{% url 'movie:detail' movie.pk %}">
+                    <img src="/static/movie/poster/{{ movie.imdb_id }}.jpg" alt="{{ movie.name }}">
+                </a>
+            </div>
+            <div class="info">
+                <h4>{{ movie.name }}</h4>
+                <p>
+                    {% for i in movie.get_score_int_range %}★{% endfor %}
+                    <span class="score">{{ movie.get_score }}</span>
+                </p>
+                <p>📖 <strong>Intro:</strong> {{ movie.intro }}</p>
+                <p>📚 <strong>Genres:</strong>
+                    {% for genre in movie.get_genre %}
+                        <a href="{% url 'movie:tag' %}?genre={{ genre }}">{{ genre }}</a>{% if not forloop.last %} | {% endif %}
+                    {% endfor %}
+                </p>
+                <p>🎬 <strong>Director:</strong> {{ movie.director }}</p>
+                <p>🎭 <strong>Actors:</strong> {{ movie.actors }}</p>
+                <p>⏱ <strong>Duration:</strong> {{ movie.time }}</p>
+                <p>📅 <strong>Release:</strong> {{ movie.release_time }}</p>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+
+{% endblock %}
